@@ -1,0 +1,8 @@
+{
+  "name": "shkobba",
+  "version": "1.0.0",
+  "description": "Shkobba, the Tunisian card game, with Wi-Fi multiplayer",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "license": "MIT"
+}

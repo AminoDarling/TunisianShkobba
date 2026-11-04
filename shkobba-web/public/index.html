@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shkobba – Tunisian Card Game</title>
+<style>
+:root{--bg:#f4efe6;--ink:#1d2a24;--felt:#1f6b4a;--felt2:#17543a;--card:#fffdf7;--line:#d9cfba;--gold:#c8961a;--muted:#6b7a72;--btn:#1d2a24;--btnink:#fffdf7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121815;--ink:#ece6d6;--felt:#17543a;--felt2:#0f3d2a;--card:#f7f1e1;--line:#35423b;--gold:#e0ac2b;--muted:#93a39a;--btn:#ece6d6;--btnink:#121815}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+body{max-width:640px;margin:0 auto;padding:10px 12px 24px}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:20px;margin:0}h1 small{font-weight:400;color:var(--muted);font-size:14px}
+.score{display:flex;gap:6px;font-size:13px}
+.score div{background:var(--card);color:#1d2a24;border:1px solid var(--line);border-radius:8px;padding:4px 9px;text-align:center}
+.score b{display:block;font-size:18px}
+.board{background:radial-gradient(circle at 50% 40%,var(--felt),var(--felt2));border-radius:16px;padding:10px;margin:10px 0;color:#fff}
+.row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;min-height:92px;align-items:center}
+.lbl{font-size:12px;opacity:.85;display:flex;justify-content:space-between;margin:2px 4px}
+.card{width:60px;height:92px;background:#fffaf0;border-radius:7px;border:1.5px solid #b9a77c;overflow:hidden;cursor:pointer;user-select:none;transition:transform .12s,box-shadow .12s;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.card svg{display:block;width:100%;height:100%}
+.card .r{font-size:20px;line-height:1}.card .s{font-size:26px;line-height:1}.card .n{font-size:9px;font-weight:500;opacity:.7;height:10px}
+.card.back{background:repeating-linear-gradient(45deg,#8c2a1a,#8c2a1a 5px,#a8402d 5px,#a8402d 10px);border-color:#f1e6c8;cursor:default}
+.card.sel{transform:translateY(-8px);box-shadow:0 0 0 3px var(--gold)}
+.card.pick{box-shadow:0 0 0 3px #ffd54a;transform:translateY(-4px)}
+.card.dim{opacity:.55}
+.table .card{cursor:default}.table.active .card{cursor:pointer}
+.og{display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 8px;border-radius:8px}
+.og.on{background:rgba(255,213,74,.28)}
+.ol{font-size:11px;opacity:.9}
+.row.mini{min-height:0;gap:2px;flex-wrap:nowrap}
+#opp{min-height:60px;gap:4px}
+.m4 .back{width:26px;height:40px;border-radius:5px}
+.mid{text-align:center;font-size:13px;min-height:36px;padding:6px 4px;color:#fff}
+.bar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px}
+button{font:inherit;border:0;border-radius:10px;padding:11px 18px;background:var(--btn);color:var(--btnink);font-weight:700;cursor:pointer}
+button:disabled{opacity:.35;cursor:default}
+button.alt{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500;padding:8px 12px;font-size:13px}
+.mb{display:block;width:100%;margin-bottom:8px;text-align:left}.mb small{display:block;font-weight:400;opacity:.8;font-size:12px;margin-top:2px}
+.hint{font-size:13px;color:var(--muted);flex:1}
+details{font-size:13px;margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:#334}
+details summary{cursor:pointer;font-weight:600}
+details p{margin:6px 0}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-start;justify-content:center;padding:16px;z-index:9;overflow-y:auto}
+.ov[hidden]{display:none}
+.panel{background:var(--card);color:#1d2a24;border-radius:16px;padding:18px;max-width:380px;width:100%;margin:auto}
+.panel h2{margin:0 0 10px;font-size:20px}
+.ov.menu{background:radial-gradient(circle at 50% 35%,#238a5e,#0c3524)}
+.ov.menu .panel{background:none;color:#fff;max-width:340px;text-align:center}
+.mt{font-size:46px;margin:0;font-weight:800;letter-spacing:1px;line-height:1.05}
+.ma{font-size:32px;margin:2px 0 0;opacity:.92}
+.ms{margin:8px 0 6px;font-size:14px;opacity:.8}
+.su{font-size:22px;letter-spacing:8px;margin:10px 0 22px}.su .r{color:#ff8d8d}
+.ov.menu .mb{background:#fffaf0;color:#1d2a24;text-align:center;padding:14px 16px;font-size:17px;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.ov.menu .mb small{opacity:.7}
+.mp{margin:0 0 10px;font-size:13px;opacity:.85;text-transform:uppercase;letter-spacing:1.5px}
+.mf{margin-top:28px;font-size:12px;opacity:.75}
+.mn{margin:14px 0 0;font-size:13px;color:#ffd54a}
+.ip{font-size:21px;font-weight:800;word-break:break-all;margin:8px 0;color:#ffd54a}
+.ov.menu input{width:100%;padding:12px;border-radius:10px;border:0;font:inherit;margin-bottom:10px;text-align:center}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:12px}
+td,th{padding:6px 4px;border-bottom:1px solid #e6dcc6;text-align:center}td:first-child,th:first-child{text-align:left}
+.ptsup{color:#1f6b4a;font-weight:700}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="sC" viewBox="0 0 24 24"><path d="M12 1l8 11-8 11-8-11z" fill="#c8102e"/></symbol>
+<symbol id="sU" viewBox="0 0 24 24"><path d="M12 21C4 15 2 11 2 7.5A5 5 0 0 1 12 6a5 5 0 0 1 10 1.5C22 11 20 15 12 21z" fill="#c8102e"/></symbol>
+<symbol id="sS" viewBox="0 0 24 24"><path d="M12 1C6 8 3 11 3 14.5A4.5 4.5 0 0 0 11 17c0 2-.5 3.5-2 5h6c-1.5-1.5-2-3-2-5a4.5 4.5 0 0 0 8-2.5C21 11 18 8 12 1z" fill="#1a1a1a"/></symbol>
+<symbol id="sB" viewBox="0 0 24 24"><g fill="#1a1a1a"><circle cx="12" cy="7" r="4.6"/><circle cx="6.5" cy="14" r="4.6"/><circle cx="17.5" cy="14" r="4.6"/><circle cx="12" cy="12.5" r="3"/><path d="M12 12c0 4-.5 7-2.5 10h5c-2-3-2.5-6-2.5-10z"/></g></symbol>
+</defs></svg>
+<header>
+  <h1>Shkobba <small>شكبة</small></h1>
+  <div class="score"><div><span id="ln0">You</span><b id="sy">0</b></div><div><span id="ln1">Rival</span><b id="sr">0</b></div><div>To<b id="tg">11</b></div></div>
+</header>
+
+<div class="board" id="board">
+  <div class="lbl"><span id="otl">Rival’s hand</span><span id="oinfo"></span></div>
+  <div class="row" id="opp"></div>
+  <div class="mid" id="msg"></div>
+  <div class="lbl"><span>Table</span><span id="dinfo"></span></div>
+  <div class="row table" id="table"></div>
+  <div class="lbl" style="margin-top:10px"><span>Your hand</span><span id="pinfo"></span></div>
+  <div class="row" id="hand"></div>
+</div>
+
+<div class="bar">
+  <div class="hint" id="hint"></div>
+  <button id="go" disabled>Play</button>
+</div>
+<div class="bar"><button class="alt" id="nw">New game / mode</button></div>
+
+<details>
+<summary>How to play</summary>
+<p>40-card deck (a standard deck without the 8, 9 and 10): Ace to 7, plus Jack (8), Queen (9) and King (10). Suits: ♠ ♥ ♦ ♣. Diamonds are the “coins”.</p>
+<p>Pick a card from your hand. If a table card has the same value, you must take it. Otherwise you must take a set of table cards that add up to your card’s value. If nothing fits, drop the card on the table.</p>
+<p>Clearing the whole table is a <b>shkobba</b> (+1), except on the last play of a deal. After a round: most cards +1, most diamonds +1, the 7 of diamonds (Sbiaa) +1.</p>
+<p><b>2 players:</b> first to 11. <b>4 players:</b> you and the player opposite (your partner) are a team against the other two. Captures and points are shared, and the first team to 7 wins.</p>
+<p><b>Wi‑Fi play:</b> one person hosts (in the Android app or with the web server) and picks 2 or 4 players. Friends on the same Wi‑Fi (or the host’s hotspot) open the address shown on the host’s phone in any browser and join.</p>
+</details>
+
+<div class="ov" id="ov" hidden><div class="panel" id="panel"></div></div>
+
+<script>
+const SUITS=[{k:'C',n:'diamonds'},{k:'U',n:'hearts'},{k:'S',n:'spades'},{k:'B',n:'clubs'}];
+const NAMES={1:'Ace',8:'Jack',9:'Queen',10:'King'};
+const $=id=>document.getElementById(id);
+let N=2,target=11,S,total=[0,0],starter=0,busy=false,gen=0,ME=0,ONLINE=false,HOST=false,ws=null,seats={},started=false,sel=null,tsel=[],url='',serverMode=false;
+const PN=()=>N===2?['You','Rival']:['You','Rival L','Partner','Rival R'];
+const TN=()=>N===2?['You','Rival']:['Your team','Rivals'];
+const fmt=m=>m.replace(/@(\d)/g,(_,p)=>PN()[(+p-ME+N)%N]);
+
+function deck(){const d=[];SUITS.forEach(s=>{for(let v=1;v<=10;v++)d.push({v,s:s.k})});for(let i=d.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[d[i],d[j]]=[d[j],d[i]]}return d}
+const isC=c=>c.s==='C', is7C=c=>c.s==='C'&&c.v===7;
+
+function startRound(){
+  gen++;busy=false;sel=null;tsel=[];
+  S={deck:deck(),table:[],hands:Array.from({length:N},()=>[]),caps:[[],[]],sk:[0,0],turn:starter,last:null,msg:'',sum:null};
+  for(let i=0;i<4;i++)S.table.push(S.deck.pop());
+  deal();
+  S.msg='New round. First to play: @'+S.turn;
+  commit();if(!ONLINE&&S.turn!==0)aiSoon();
+}
+function deal(){for(let i=0;i<3;i++)S.hands.forEach(h=>h.push(S.deck.pop()));S.hands.forEach(h=>h.sort((a,b)=>a.v-b.v))}
+
+function options(card,table){
+  const eq=[];table.forEach((t,i)=>{if(t.v===card.v)eq.push([i])});
+  if(eq.length)return eq;
+  const out=[],n=table.length;
+  for(let m=1;m<(1<<n);m++){let sum=0,idx=[];for(let i=0;i<n;i++)if(m&(1<<i)){sum+=table[i].v;idx.push(i)}if(sum===card.v)out.push(idx)}
+  return out;
+}
+const same=(a,b)=>a.length===b.length&&a.every(x=>b.includes(x));
+const nm=c=>(NAMES[c.v]||c.v)+' of '+SUITS.find(s=>s.k===c.s).n;
+
+function commit(){render();if(HOST)broadcast()}
+function snap(seat){return JSON.stringify({t:'st',me:seat,N,target,total,S:{...S,deck:S.deck.map(()=>0),hands:S.hands.map((h,i)=>i===seat?h:h.map(()=>0))}})}
+function broadcast(){if(!ws||ws.readyState!==1)return;for(const id in seats)ws.send('S|'+id+'|'+snap(seats[id]))}
+
+function play(p,hi,take){
+  const t=p%2,card=S.hands[p].splice(hi,1)[0];let txt='@'+p+' played '+nm(card);
+  if(take.length){
+    const got=take.map(i=>S.table[i]);
+    S.table=S.table.filter((_,i)=>!take.includes(i));
+    S.caps[t].push(card,...got);S.last=t;
+    txt+=' and took '+got.map(nm).join(' + ');
+    const endOfDeal=!S.deck.length&&S.hands.every(h=>!h.length);
+    if(!S.table.length&&!endOfDeal){S.sk[t]++;txt+=' — SHKOBBA!'}
+  }else{S.table.push(card);txt+=' to the table'}
+  S.msg=txt;sel=null;tsel=[];S.turn=(p+1)%N;
+  if(S.hands.every(h=>!h.length)){
+    if(S.deck.length){deal();S.msg+=' · New cards dealt'}
+    else return endRound();
+  }
+  commit();if(!ONLINE&&S.turn!==0)aiSoon();
+}
+
+function aiSoon(){const g=gen;busy=true;setTimeout(()=>{if(g!==gen)return;busy=false;aiMove()},N===4?650:950)}
+function aiMove(){
+  const p=S.turn,h=S.hands[p];let best=null;
+  const left=S.hands.reduce((a,x)=>a+x.length,0);
+  h.forEach((c,hi)=>{
+    options(c,S.table).forEach(o=>{
+      const got=o.map(i=>S.table[i]).concat(c);let sc=0;
+      got.forEach(x=>{sc+=1+(isC(x)?2:0)+(x.v===7?3:0)+(x.v===6?1:0)+(is7C(x)?12:0)});
+      const rest=S.table.length-o.length,last=!S.deck.length&&left===1;
+      if(!rest&&!last)sc+=8;
+      sc+=Math.random()*.5;
+      if(!best||sc>best.sc)best={sc,hi,take:o};
+    });
+  });
+  if(!best){
+    h.forEach((c,hi)=>{
+      const sum=S.table.reduce((a,t)=>a+t.v,0)+c.v;
+      const pen=(isC(c)?2:0)+(c.v===7?4:0)+(is7C(c)?20:0)+(sum<=10?6:0)+Math.random();
+      if(!best||-pen>best.sc)best={sc:-pen,hi,take:[]};
+    });
+  }
+  play(p,best.hi,best.take);
+}
+
+function endRound(){
+  if(S.table.length&&S.last!==null)S.caps[S.last].push(...S.table);
+  S.table=[];
+  const n=S.caps.map(c=>c.length),co=S.caps.map(c=>c.filter(isC).length),s7=S.caps.map(c=>c.some(is7C));
+  const cmp=(a,b)=>a>b?[1,0]:b>a?[0,1]:[0,0];
+  const rows=[['Most cards',n[0],n[1],cmp(n[0],n[1])],['Most diamonds',co[0],co[1],cmp(co[0],co[1])],['7 of diamonds',s7[0]?'✓':'–',s7[1]?'✓':'–',s7[0]?[1,0]:[0,1]],['Shkobba',S.sk[0],S.sk[1],S.sk]];
+  rows.forEach(r=>{total[0]+=r[3][0];total[1]+=r[3][1]});
+  S.sum={rows,over:(total[0]>=target||total[1]>=target)&&total[0]!==total[1]};
+  commit();showSum();
+}
+function showSum(){
+  const m=ME%2,T=TN(),rows=S.sum.rows,over=S.sum.over,srv=!ONLINE||HOST;
+  const c=(v,p)=>v+(p?' <span class="ptsup">+'+p+'</span>':'');
+  let h='<h2>'+(over?(total[m]>total[1-m]?(N===2?'You win! 🎉':'Your team wins! 🎉'):(N===2?'Rival wins':'Rivals win')):'Round over')+'</h2><table><tr><th></th><th>'+T[0]+'</th><th>'+T[1]+'</th></tr>';
+  rows.forEach(r=>{h+='<tr><td>'+r[0]+'</td><td>'+c(r[1+m],r[3][m])+'</td><td>'+c(r[2-m],r[3][1-m])+'</td></tr>'});
+  h+='<tr><td><b>Total</b></td><td><b>'+total[m]+'</b></td><td><b>'+total[1-m]+'</b></td></tr></table>';
+  h+=srv?'<button id="next" style="width:100%">'+(over?(ONLINE?'Rematch':'Play again'):'Next round')+'</button>':'<p style="text-align:center;margin:0">Waiting for the host…</p>';
+  $('panel').innerHTML=h;$('ov').classList.remove('menu');$('ov').hidden=false;
+  if(srv)$('next').onclick=()=>{
+    if(over&&!ONLINE)return showMenu();
+    if(over){total=[0,0];starter=0}else starter=(starter+1)%N;
+    $('ov').hidden=true;startRound();
+  };
+}
+
+function ui(){
+  $('ln0').textContent=N===2?'You':'Us';$('ln1').textContent=N===2?'Rival':'Them';$('tg').textContent=target;
+  $('board').classList.toggle('m4',N===4);$('otl').textContent=N===2?'Rival’s hand':'Other players';
+  $('ov').classList.remove('menu');$('ov').hidden=true;
+}
+function begin(){target=N===2?11:7;total=[0,0];starter=0;ui();startRound()}
+function leave(){
+  if(ws){ws.onclose=null;try{ws.close()}catch(e){}ws=null}
+  ONLINE=HOST=started=false;seats={};
+  if(window.AndroidHost){try{AndroidHost.stop()}catch(e){}}
+}
+function panel(h){$('panel').innerHTML=h;$('ov').classList.add('menu');$('ov').hidden=false}
+function showMenu(note){
+  gen++;busy=false;leave();
+  panel('<div class="mt">Shkobba</div><div class="ma">شكبة</div><p class="ms">The Tunisian card game</p><div class="su">♠<span class="r">♥</span><span class="r">♦</span>♣</div><p class="mp">Play vs computer</p><button class="mb" data-a="vs2">2 players<small>You vs Rival · first to 11</small></button><button class="mb" data-a="vs4">4 players<small>2 vs 2: you and your partner against two rivals · first to 7</small></button><p class="mp">Play with friends on Wi‑Fi</p><button class="mb" data-a="host">Host a game<small>2 or 4 real players</small></button><button class="mb" data-a="join">Join a game</button>'+(note?'<p class="mn">'+note+'</p>':'')+'<div class="mf">made with love by aminodarling and Claude</div>');
+}
+
+function lobby(){
+  const n=Object.keys(seats).length+1;
+  panel('<p class="mp">Hosting · '+N+' players</p><p class="ms">Friends on the same Wi‑Fi (or your hotspot) open this address in their browser:</p><div class="ip">'+(location.protocol==='https:'?'https://':'http://')+url+'</div><p class="ms">Players joined: '+n+' / '+N+'</p><button class="mb" data-a="back">Cancel</button>');
+  if(ws&&ws.readyState===1)ws.send('B|'+JSON.stringify({t:'lobby',n,N}));
+}
+async function hostStart(){
+  leave();
+  let r,wu;
+  if(window.AndroidHost){r=''+AndroidHost.start();wu='ws://127.0.0.1:'+r.split(':')[1]+'/ws'}
+  else{try{r=await(await fetch('/lan')).text()}catch(e){r='ERR'}wu=(location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws'}
+  if(r.indexOf('ERR')===0)return showMenu('Could not start hosting. Turn on Wi‑Fi (or your hotspot) and try again.');
+  url=r;ONLINE=HOST=true;seats={};started=false;ME=0;
+  const w=ws=new WebSocket(wu);
+  w.onopen=()=>w.send('HOST');
+  w.onmessage=e=>hostMsg(e.data);
+  w.onclose=()=>{if(ws===w)showMenu('The connection closed.')};
+  lobby();
+}
+function hostMsg(d){
+  if(d==='BUSY')return showMenu('A game is already being hosted.');
+  const p=d.split('|');
+  if(p[0]==='J'){
+    const id=p[1];
+    if(started||Object.keys(seats).length>=N-1){ws.send('S|'+id+'|'+JSON.stringify({t:'full'}));return}
+    seats[id]=Object.keys(seats).length+1;lobby();
+    if(Object.keys(seats).length===N-1){started=true;begin()}
+  }else if(p[0]==='L'){
+    if(!(p[1] in seats))return;
+    if(started){ws.send('B|'+JSON.stringify({t:'end',why:'A player left the game.'}));showMenu('A player left the game.')}
+    else{delete seats[p[1]];let k=1;for(const i in seats)seats[i]=k++;lobby()}
+  }else if(p[0]==='M'){
+    const seat=seats[p[1]];if(!started||!seat||!S||S.sum||S.turn!==seat)return;
+    let m;try{m=JSON.parse(d.slice(d.indexOf('|',2)+1))}catch(e){return}
+    const card=S.hands[seat][m.h];if(m.t!=='mv'||!card||!Array.isArray(m.take))return;
+    const ops=options(card,S.table),take=m.take.map(Number).sort((a,b)=>a-b);
+    if(ops.length&&!ops.some(o=>same(o,take)))return;
+    play(seat,m.h,ops.length?take:[]);
+  }
+}
+function joinStart(addr){
+  if(!addr)return showMenu('Enter the host address.');
+  leave();ONLINE=true;HOST=false;
+  panel('<p class="ms">Connecting to '+addr+'…</p><button class="mb" data-a="back">Cancel</button>');
+  let w;try{w=ws=new WebSocket((addr===location.host&&location.protocol==='https:'?'wss://':'ws://')+addr+'/ws')}catch(e){return showMenu('That address does not look right.')}
+  w.onopen=()=>w.send('JOIN');
+  w.onmessage=e=>clientMsg(e.data);
+  w.onclose=()=>{if(ws===w)showMenu(S&&S.hands&&started?'The host left the game.':'Could not connect to '+addr)};
+}
+function clientMsg(d){
+  if(d==='NOHOST')return showMenu('Nobody is hosting there yet.');
+  if(d==='OK'){started=true;return panel('<p class="ms">Connected! Waiting for the host to start…</p><button class="mb" data-a="back">Leave</button>')}
+  let m;try{m=JSON.parse(d)}catch(e){return}
+  if(m.t==='lobby')panel('<p class="ms">Connected! Waiting for the host to start… ('+m.n+' / '+m.N+')</p><button class="mb" data-a="back">Leave</button>');
+  else if(m.t==='full')showMenu('That game is full or already started.');
+  else if(m.t==='end')showMenu(m.why);
+  else if(m.t==='st'){N=m.N;target=m.target;total=m.total;ME=m.me;S=m.S;sel=null;tsel=[];ui();render();if(S.sum)showSum()}
+}
+
+const COL={C:'#c8102e',U:'#c8102e',S:'#1a1a1a',B:'#1a1a1a'};
+const FC={C:'#c8102e',U:'#c8102e',S:'#1f3a7a',B:'#1f3a7a'};
+const RANK={1:'A',8:'J',9:'Q',10:'K'};
+const PIPS={1:[[30,46]],2:[[30,27],[30,65]],3:[[30,24],[30,46],[30,68]],4:[[21,28],[39,28],[21,64],[39,64]],5:[[21,28],[39,28],[30,46],[21,64],[39,64]],6:[[21,25],[39,25],[21,46],[39,46],[21,67],[39,67]],7:[[21,25],[39,25],[30,35],[21,46],[39,46],[21,67],[39,67]]};
+function face(v,s){
+  const c=FC[s],sy=(x,y,z)=>'<use href="#s'+s+'" x="'+x+'" y="'+y+'" width="'+z+'" height="'+z+'"/>';
+  const bg='<rect x="11" y="16" width="38" height="60" rx="2" fill="'+c+'" fill-opacity=".1" stroke="'+c+'" stroke-opacity=".45" stroke-width=".7"/>';
+  const skin='fill="#f1c9a0" stroke="#5a3a1a" stroke-width=".8"',gold='fill="#e3b02a" stroke="#8a5a0a" stroke-width=".6"';
+  if(v===8)return bg+'<rect x="22" y="60" width="6" height="13" fill="#3a3a3a"/><rect x="32" y="60" width="6" height="13" fill="#3a3a3a"/><path d="M21 36h18l4 25H17z" fill="'+c+'" stroke="#222" stroke-width=".8"/><circle cx="30" cy="28" r="6" '+skin+'/><path d="M23 27c0-9 14-9 14 0z" fill="'+c+'" stroke="#222" stroke-width=".7"/><path d="M36 21l8-4-3 9z" fill="#fff" stroke="#999" stroke-width=".5"/>'+sy(34,42,14);
+  if(v===9)return bg+'<path d="M22 30c-1 12 1 18 4 20h8c3-2 5-8 4-20z" fill="#7a4a1e"/><path d="M19 76l4-27h14l4 27z" fill="'+c+'" stroke="#222" stroke-width=".8"/><path d="M25 49h10l-5 7z" fill="#fff" stroke="#bbb" stroke-width=".4"/><circle cx="30" cy="31" r="6" '+skin+'/><path d="M24 26l1.5-7 2.5 4 2-6 2 6 2.5-4 1.5 7z" '+gold+'/>'+sy(36,56,12);
+  return bg+'<path d="M43 40v36" stroke="#c8961a" stroke-width="2"/><circle cx="43" cy="38" r="2.8" '+gold+'/><path d="M18 76l3-35h18l3 35z" fill="'+c+'" stroke="#222" stroke-width=".8"/><rect x="19" y="66" width="22" height="5" fill="#fff" stroke="#bbb" stroke-width=".4"/><circle cx="30" cy="32" r="6" '+skin+'/><path d="M24 34q6 11 12 0z" fill="#dcdcdc" stroke="#888" stroke-width=".5"/><path d="M23 27l2-9 3 5 2-6 2 6 3-5 2 9z" '+gold+'/>'+sy(24,44,12);
+}
+function cardEl(c,cls,attr){
+  const col=COL[c.s],r=RANK[c.v]||c.v;let g;
+  if(c.v<=7){const z=c.v===1?34:c.v>=6?13:15;g=PIPS[c.v].map(p=>'<use href="#s'+c.s+'" x="'+(p[0]-z/2)+'" y="'+(p[1]-z/2)+'" width="'+z+'" height="'+z+'"/>').join('')}
+  else g=face(c.v,c.s);
+  const idx='<text x="8" y="14" font-size="12" font-weight="700" text-anchor="middle" fill="'+col+'" font-family="Georgia,serif">'+r+'</text><use href="#s'+c.s+'" x="4" y="16" width="8" height="8"/>';
+  return '<div class="card '+cls+'" '+attr+'><svg viewBox="0 0 60 92">'+idx+'<g transform="rotate(180 30 46)">'+idx+'</g>'+g+'</svg></div>';
+}
+function render(){
+  const m=ME%2,P=PN();
+  $('sy').textContent=total[m];$('sr').textContent=total[1-m];
+  $('opp').innerHTML=Array.from({length:N-1},(_,k)=>{const i=k+1,seat=(ME+i)%N;return '<div class="og'+(S.turn===seat?' on':'')+'">'+(N===4?'<div class="ol">'+P[i]+'</div>':'')+'<div class="row mini">'+S.hands[seat].map(()=>'<div class="card back"></div>').join('')+'</div></div>'}).join('');
+  const hand=S.hands[ME],my=S.turn===ME&&!busy&&hand.length>0&&$('ov').hidden;
+  const ops=sel!==null&&hand[sel]?options(hand[sel],S.table):[];
+  $('hand').innerHTML=hand.map((c,i)=>cardEl(c,(sel===i?'sel':'')+(sel!==null&&sel!==i?' dim':''),'data-h="'+i+'"')).join('');
+  $('table').className='row table'+(my&&sel!==null&&ops.length?' active':'');
+  $('table').innerHTML=S.table.map((c,i)=>cardEl(c,tsel.includes(i)?'pick':'','data-t="'+i+'"')).join('')||'<span style="opacity:.7;font-size:13px">Table is clear</span>';
+  $('msg').textContent=fmt(S.msg);
+  $('dinfo').textContent='Deck '+S.deck.length;
+  $('oinfo').textContent=(N===4?'Rivals · ':'')+'Won '+S.caps[1-m].length+' · Shkobba '+S.sk[1-m];
+  $('pinfo').textContent=(N===4?'Our team · ':'')+'Won '+S.caps[m].length+' · Shkobba '+S.sk[m];
+  const go=$('go');let hint='',ok=false,label='Play';
+  if(!my){hint=S.turn!==ME&&!S.sum?'Waiting for '+P[(S.turn-ME+N)%N]+'…':''}
+  else if(sel===null)hint='Tap a card from your hand.';
+  else{
+    const card=hand[sel];
+    if(!ops.length){label='Drop card';ok=true;hint='No capture possible — drop it on the table.'}
+    else{label='Capture';hint=S.table.some(t=>t.v===card.v)?'Same value on the table: you must take one.':'Tap table cards that add up to '+card.v+'.';ok=ops.some(o=>same(o,tsel))}
+  }
+  go.textContent=label;go.disabled=!ok;$('hint').textContent=hint;
+}
+$('hand').onclick=e=>{
+  if(!S)return;
+  const el=e.target.closest('[data-h]');if(!el||S.turn!==ME||busy)return;
+  const i=+el.dataset.h;sel=sel===i?null:i;tsel=[];render();
+};
+$('table').onclick=e=>{
+  if(!S||sel===null)return;
+  const el=e.target.closest('[data-t]');if(!el||S.turn!==ME||busy||!options(S.hands[ME][sel],S.table).length)return;
+  const i=+el.dataset.t,k=tsel.indexOf(i);
+  if(k>=0)tsel.splice(k,1);else tsel.push(i);
+  render();
+};
+$('go').onclick=()=>{
+  if(!S||sel===null||S.turn!==ME||busy)return;
+  const ops=options(S.hands[ME][sel],S.table),t=tsel.slice().sort((a,b)=>a-b);
+  let take=t;
+  if(!ops.length)take=[];else if(!ops.some(o=>same(o,t)))return;
+  if(ONLINE&&!HOST){ws.send(JSON.stringify({t:'mv',h:sel,take}));sel=null;tsel=[];render();return}
+  play(ME,sel,take);
+};
+$('nw').onclick=()=>showMenu();
+$('panel').onclick=e=>{const b=e.target.closest('[data-a]');if(b)menu(b.dataset.a)};
+function menu(a){
+  if(a==='vs2'||a==='vs4'){leave();N=a==='vs2'?2:4;begin()}
+  else if(a==='host'){
+    if(window.AndroidHost||serverMode)panel('<p class="mp">Host a game</p><p class="ms">How many players?</p><button class="mb" data-a="h2">2 players</button><button class="mb" data-a="h4">4 players<small>2 vs 2 teams</small></button><button class="mb" data-a="back">Back</button>');
+    else showMenu('Hosting needs the Shkobba Android app, or the Shkobba web server running on a computer. Everyone else just opens the address it shows, in any browser.');
+  }
+  else if(a==='h2'||a==='h4'){N=a==='h2'?2:4;hostStart()}
+  else if(a==='join'){
+    if(serverMode)joinStart(location.host);
+    else panel('<p class="mp">Join a game</p><p class="ms">Enter the address shown on the host’s phone</p><input id="ip" placeholder="192.168.1.12:8080" inputmode="url" autocomplete="off"><button class="mb" data-a="conn">Connect</button><button class="mb" data-a="back">Back</button>');
+  }
+  else if(a==='conn')joinStart($('ip').value.trim().replace(/^https?:\/\//,'').replace(/\/.*$/,''));
+  else if(a==='back')showMenu();
+}
+showMenu();
+if(/^https?:$/.test(location.protocol))fetch('/status').then(r=>r.text()).then(t=>{if(/^[01]$/.test(t)){serverMode=true;if(t==='1')joinStart(location.host)}}).catch(()=>{});
+</script>
+</body>
+</html>
